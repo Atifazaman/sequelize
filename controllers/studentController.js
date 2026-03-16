@@ -1,5 +1,6 @@
-const db=require('../utils/dbConnection')
 const Student=require('../models/students')
+const Department = require("../models/department")
+
 
 
 const getEntries=async(req,res)=>{
@@ -89,10 +90,47 @@ const deleteEntry=async(req,res)=>{
 }
 }
 
+const createStudentWithDepartment=async(req,res)=>{
+    try{
+const student=await Student.create(req.body)
+ res.status(201).json(student)
+    } catch (err) {
+
+        res.status(500).json({ message: "Error creating student" })
+
+    }
+
+}
+
+
+const getDepartmentWithStudents = async (req,res)=>{
+try{
+
+const {id} = req.params
+
+const department = await Department.findByPk(id,{
+ include: Student
+})
+
+if(!department){
+return res.status(404).send("Department Not Found")
+}
+
+res.status(200).json(department)
+
+}catch(err){
+
+res.status(500).json({message:"Unable to retrieve department"})
+
+}
+}
+
 module.exports={
     getEntries,
     getEntryById,
     addEntries,
     updateEntry,
-    deleteEntry
+    deleteEntry,
+    createStudentWithDepartment,
+    getDepartmentWithStudents
 }
